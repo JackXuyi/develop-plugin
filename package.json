@@ -24,7 +24,7 @@
     "LICENSE",
     ".gitignore",
     "tsconfig.json",
-    "scr",
+    "src",
     "lib"
   ],
   "homepage": "https://github.com/JackXuyi/develop-plugin#readme",
