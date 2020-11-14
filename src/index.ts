@@ -11,3 +11,5 @@ function Loader(content: any) {
 Loader.Plugin = createPluginClass(assets)
 
 export default Loader
+
+module.exports = Loader
