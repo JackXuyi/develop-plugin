@@ -13,6 +13,7 @@
     "allowSyntheticDefaultImports": true
   },
   "exclude": ["./node_modules/*", "lib", "es", "dist"],
+  "include": ["src"],
   "skipLibCheck": true,
   "skipDefaultLibCheck": true
 }

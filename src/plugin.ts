@@ -7,6 +7,7 @@ export interface IOptions {
   test: RegExp
   isDel?: boolean
   output?: true | ((assets: string[]) => void)
+  outputAssets?: boolean
 }
 
 const createPluginClass = (useAssets: Set<string>) => {
@@ -18,8 +19,10 @@ const createPluginClass = (useAssets: Set<string>) => {
     }
 
     public apply(compiler: any) {
-      compiler.plugin('done', () => {
+      compiler.plugin('shouldEmit', () => {
         this.outputAssets()
+        const { outputAssets = false } = this.options
+        return outputAssets
       })
     }
 
