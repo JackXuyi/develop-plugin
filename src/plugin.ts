@@ -13,16 +13,26 @@ export interface IOptions {
 const createPluginClass = (useAssets: Set<string>) => {
   return class {
     public options: IOptions
+    public assets: Set<string>
+    public assetsMap: { [key: string]: true } = {}
 
     constructor(options: IOptions) {
       this.options = options
+      this.assets = useAssets
+
+      useAssets.forEach((file: string) => {
+        this.assetsMap[file] = true
+      })
     }
 
     public apply(compiler: any) {
       compiler.plugin('shouldEmit', () => {
-        this.outputAssets()
         const { outputAssets = false } = this.options
         return outputAssets
+      })
+
+      compiler.plugin('afterEmit', () => {
+        this.outputAssets()
       })
     }
 
@@ -40,10 +50,8 @@ const createPluginClass = (useAssets: Set<string>) => {
       const { output, isDel } = this.options
       if (output) {
         const projectAssets = this.getAssets()
-        const useAssetsMap: { [key: string]: true } = {}
-        useAssets.forEach((key) => (useAssetsMap[key] = true), {})
         const projectNoUseAssets = projectAssets.filter(
-          (file) => !useAssetsMap[file],
+          (file) => !this.assetsMap[file],
         )
         if (isDel) {
           projectNoUseAssets.forEach((filename) => {
@@ -53,10 +61,14 @@ const createPluginClass = (useAssets: Set<string>) => {
           })
         }
         if (typeof output === 'boolean') {
-          console.log(
-            chalk.red('Project do not use images list'),
-            projectNoUseAssets,
-          )
+          if (projectNoUseAssets.length) {
+            console.log(
+              chalk.red('Project do not use assets list'),
+              projectNoUseAssets,
+            )
+          } else {
+            console.log(chalk.green('All assets is used'))
+          }
         } else if (typeof output === 'function') {
           output(projectNoUseAssets)
         }
