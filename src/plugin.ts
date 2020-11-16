@@ -15,14 +15,14 @@ const createPluginClass = (useAssets: Set<string>) => {
     public options: IOptions
     public assets: Set<string>
     public assetsMap: { [key: string]: true } = {}
+    public files: Set<string>
 
     constructor(options: IOptions) {
       this.options = options
       this.assets = useAssets
+      this.files = new Set()
 
-      useAssets.forEach((file: string) => {
-        this.assetsMap[file] = true
-      })
+      this.getAssets()
     }
 
     public apply(compiler: any) {
@@ -31,7 +31,11 @@ const createPluginClass = (useAssets: Set<string>) => {
         return outputAssets
       })
 
-      compiler.plugin('afterEmit', () => {
+      compiler.plugin('done', () => {
+        // 遍历使用的文件
+        this.assets.forEach((file: string) => {
+          this.assetsMap[file] = true
+        })
         this.outputAssets()
       })
     }
@@ -43,16 +47,22 @@ const createPluginClass = (useAssets: Set<string>) => {
         const list = getFileList(path.resolve(pathname))
         files.push(...list)
       })
-      return files.filter((file) => test.test(file))
+      files.forEach((file) => {
+        if (test.test(file)) {
+          this.files.add(file)
+        }
+      })
     }
 
     public outputAssets() {
       const { output, isDel } = this.options
       if (output) {
-        const projectAssets = this.getAssets()
-        const projectNoUseAssets = projectAssets.filter(
-          (file) => !this.assetsMap[file],
-        )
+        const projectNoUseAssets: string[] = []
+        this.files.forEach((file) => {
+          if (!this.assetsMap[file]) {
+            projectNoUseAssets.push(file)
+          }
+        })
         if (isDel) {
           projectNoUseAssets.forEach((filename) => {
             if (delFile(filename)) {
@@ -63,7 +73,11 @@ const createPluginClass = (useAssets: Set<string>) => {
         if (typeof output === 'boolean') {
           if (projectNoUseAssets.length) {
             console.log(
-              chalk.red('Project do not use assets list'),
+              chalk.yellow(
+                `${chalk.red(
+                  projectNoUseAssets.length,
+                )} files do not use, list is `,
+              ),
               projectNoUseAssets,
             )
           } else {
