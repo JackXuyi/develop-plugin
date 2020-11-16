@@ -1,6 +1,6 @@
 {
   "name": "@zhijianren/develop-plugin",
-  "version": "0.0.2-beta.5",
+  "version": "0.0.3",
   "description": "开发过程中项目优化",
   "main": "./lib/index.js",
   "scripts": {
@@ -25,8 +25,12 @@
     "LICENSE",
     ".gitignore",
     "tsconfig.json",
-    "src",
     "lib"
+  ],
+  "keywords": [
+    "webpack",
+    "clean",
+    "assets"
   ],
   "homepage": "https://github.com/JackXuyi/develop-plugin#readme",
   "devDependencies": {

@@ -13,16 +13,30 @@ export interface IOptions {
 const createPluginClass = (useAssets: Set<string>) => {
   return class {
     public options: IOptions
+    public assets: Set<string>
+    public assetsMap: { [key: string]: true } = {}
+    public files: Set<string>
 
     constructor(options: IOptions) {
       this.options = options
+      this.assets = useAssets
+      this.files = new Set()
+
+      this.getAssets()
     }
 
     public apply(compiler: any) {
       compiler.plugin('shouldEmit', () => {
-        this.outputAssets()
         const { outputAssets = false } = this.options
         return outputAssets
+      })
+
+      compiler.plugin('done', () => {
+        // 遍历使用的文件
+        this.assets.forEach((file: string) => {
+          this.assetsMap[file] = true
+        })
+        this.outputAssets()
       })
     }
 
@@ -33,18 +47,22 @@ const createPluginClass = (useAssets: Set<string>) => {
         const list = getFileList(path.resolve(pathname))
         files.push(...list)
       })
-      return files.filter((file) => test.test(file))
+      files.forEach((file) => {
+        if (test.test(file)) {
+          this.files.add(file)
+        }
+      })
     }
 
     public outputAssets() {
       const { output, isDel } = this.options
       if (output) {
-        const projectAssets = this.getAssets()
-        const useAssetsMap: { [key: string]: true } = {}
-        useAssets.forEach((key) => (useAssetsMap[key] = true), {})
-        const projectNoUseAssets = projectAssets.filter(
-          (file) => !useAssetsMap[file],
-        )
+        const projectNoUseAssets: string[] = []
+        this.files.forEach((file) => {
+          if (!this.assetsMap[file]) {
+            projectNoUseAssets.push(file)
+          }
+        })
         if (isDel) {
           projectNoUseAssets.forEach((filename) => {
             if (delFile(filename)) {
@@ -53,10 +71,18 @@ const createPluginClass = (useAssets: Set<string>) => {
           })
         }
         if (typeof output === 'boolean') {
-          console.log(
-            chalk.red('Project do not use images list'),
-            projectNoUseAssets,
-          )
+          if (projectNoUseAssets.length) {
+            console.log(
+              chalk.yellow(
+                `${chalk.red(
+                  projectNoUseAssets.length,
+                )} files do not use, list is `,
+              ),
+              projectNoUseAssets,
+            )
+          } else {
+            console.log(chalk.green('All assets is used'))
+          }
         } else if (typeof output === 'function') {
           output(projectNoUseAssets)
         }
