@@ -10,7 +10,7 @@ class Plugin {
     this.options = options
   }
 
-  public apply = (compiler: any) => {
+  public apply(compiler: any) {
     compiler.plugin('emit', (compilation: any, callback: () => void) => {
       // 检索每个（构建输出的）chunk
       const packageArr: Set<string> = new Set()
@@ -56,7 +56,7 @@ class Plugin {
         {},
       )
 
-      for (const pack in packages) {
+      for (const pack of packages) {
         if (!map[pack]) {
           noUsePackages.push(pack)
         }
