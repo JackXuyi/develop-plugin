@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "tsc --build ./tsconfig.dev.json --watch",
     "build": "tsc --build ./tsconfig.json",
-    "deploy": "npm run build && npm version patch && npm publish /lib --access=public",
-    "deploy:beta": "npm run build && npm version prerelease --preid=beta && npm publish ./lib --access=public",
+    "deploy": "npm run build && npm version patch && npm publish --access=public",
+    "deploy:beta": "npm run build && npm version prerelease --preid=beta && npm publish  --access=public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
