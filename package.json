@@ -1,6 +1,6 @@
 {
   "name": "@zhijianren/develop-plugin",
-  "version": "0.0.7-beta.6",
+  "version": "0.0.7-beta.7",
   "description": "开发过程中项目优化",
   "main": "./lib/index.js",
   "scripts": {
