@@ -1,4 +1,5 @@
 import createPluginClass from './plugin'
+import PackageCheckPlugin from './packageCheck'
 
 const assets: Set<string> = new Set()
 
@@ -9,6 +10,7 @@ function Loader(content: any) {
 }
 
 Loader.Plugin = createPluginClass(assets)
+Loader.PackageCheckPlugin = PackageCheckPlugin
 
 export default Loader
 
